@@ -5,9 +5,11 @@ require 'json'
 module ArtApi
   module Api
     class Configuration
-      attr_accessor :six_post_url, :wp_post_url
+      attr_accessor :site_id, :api_key, :six_post_url, :wp_post_url
 
       def initialize
+        @site_id = ''
+        @api_key = ''
         @six_post_url = ''
         @wp_post_url = ''
       end
@@ -26,8 +28,8 @@ module ArtApi
 
       def create_six_art_payload(**opt)
         payload = {
-          api_key: opt[:api_key],
-          site_id: opt[:site_id],
+          api_key: configuration.api_key,
+          site_id: configuration.site_id,
           id: opt[:id],
           title: opt[:title],
           seo_title: opt[:seo_title],
@@ -71,13 +73,13 @@ module ArtApi
 
       # push article to six
       def push_six_art(content)
-        post_url = configuration.six_post_url % [content[:site_id]] 
+        post_url = configuration.six_post_url % [configuration.site_id]] 
         payload =  create_six_art_payload(content)
         single_sender(post_url, payload)
       end
 
       def push_wp_art(content)
-        header = {content_type: :json, accept: :json, authorization: content[:authorization]}
+        header = {content_type: :json, accept: :json, authorization: configuration.authorization]}
         payload =  create_wp_art_payload(content)
         post_url = configuration.wp_post_url
         single_sender(post_url, payload)
